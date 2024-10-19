@@ -1,0 +1,7 @@
+# Ignore log files
+secret.json
+*.log
+
+# Ignore VS Code settings folder
+.vscode/
+
