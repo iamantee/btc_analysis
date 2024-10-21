@@ -1,6 +1,7 @@
 from dune_client.client import DuneClient
 import json
 import telebot
+from datetime import datetime
 
 # load api key
 AAVE_API_KEY = ''
@@ -18,15 +19,17 @@ query_result = dune.get_latest_result(AAVE_QUERY_ID)
 tg_message = ''
 
 try:
-    # tg_message += "Token: Borrow Volume (Millions)" + chr(10)
-    # tg_message += ("-" * 40 + chr(10))
     total_borrow_volume_millions = 0
+    today = datetime.now().strftime('%Y-%m-%d')
+    tg_message += f"Date: {today}" + chr(10)
+    tg_message += ("-" * 40 + chr(10))
     for r in query_result.result.rows:
-        if r['day'] == '2024-10-20 00:00:00.000 UTC':
+        if r['day'] == today + ' 00:00:00.000 UTC':
             token = r['token']
-            borrow_volume_millions = (r['Borrow_volume'] if r['Borrow_volume'] is not None else 0) / 1_000_000
-            tg_message += f"{token}: {borrow_volume_millions:.2f}M" + chr(10)
-            total_borrow_volume_millions += borrow_volume_millions
+            borrow_volume_millions = (r['Borrow_volume']  / 1_000_000) if r['Borrow_volume'] is not None else 0
+            if borrow_volume_millions > 0:
+                tg_message += f"{token}: {borrow_volume_millions:.2f}M" + chr(10)
+                total_borrow_volume_millions += borrow_volume_millions
     tg_message += ("-" * 40 + chr(10))
     tg_message += f"Total: {total_borrow_volume_millions:.2f}M" + chr(10)
     tg_message += ">= 400M may be regarded as FOMO"
